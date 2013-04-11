@@ -21,7 +21,7 @@ namespace and blessing of an object of said namespace as required.
 =cut
 
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use base qw(Anansi::Singleton);
 
@@ -39,7 +39,7 @@ my $ACTOR = Anansi::Actor->SUPER::new();
 
 =head2 ACTOR_VARIABLE
 
-A long description of the constant.
+N/A
 
 =cut
 
@@ -106,7 +106,8 @@ sub import {
 
 =head2 modules
 
-.
+Builds and returns a HASH of all the modules and their paths that are available
+on the operating system.
 
 =cut
 
