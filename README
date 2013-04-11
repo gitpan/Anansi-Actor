@@ -1,4 +1,4 @@
-Anansi-ModuleManager version 0.01
+Anansi-ModuleManager version 0.02
 =================================
 
 The README is used to introduce the module and provide instructions on
@@ -25,7 +25,9 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-  N/A
+  Anansi::Singleton
+  File::Find
+  File::Spec::Functions
 
 COPYRIGHT AND LICENCE
 
