@@ -7,4 +7,6 @@ Revision history for Perl extension Anansi::Actor.
 	- modified README with prerequisite modules.
 0.03  Wed Apr 10 20:10:53 2013
 	- modified the POD.
+0.04  Sun Apr 15 00:08:43 2013
+	- modified the POD.
 

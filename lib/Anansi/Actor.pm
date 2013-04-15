@@ -21,7 +21,7 @@ namespace and blessing of an object of said namespace as required.
 =cut
 
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use base qw(Anansi::Singleton);
 
@@ -106,8 +106,16 @@ sub import {
 
 =head2 modules
 
+ my $MODULES = $object->modules();
+
+ # OR
+
+ use Anansi::Actor;
+
+ my $MODULES = Anansi::Actor->modules();
+
 Builds and returns a HASH of all the modules and their paths that are available
-on the operating system.
+on the operating system.  Indirectly called via an extending module.
 
 =cut
 
