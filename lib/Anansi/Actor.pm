@@ -21,12 +21,14 @@ namespace and blessing of an object of said namespace as required.
 =cut
 
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use base qw(Anansi::Singleton);
 
+use Fcntl ':flock';
 use File::Find;
 use File::Spec::Functions;
+use FileHandle;
 
 
 my $ACTOR = Anansi::Actor->SUPER::new();
@@ -106,22 +108,48 @@ sub import {
 
 =head2 modules
 
- my $MODULES = $object->modules();
+ my %MODULES = $object->modules();
 
  # OR
 
  use Anansi::Actor;
+ my %MODULES = Anansi::Actor->modules();
 
- my $MODULES = Anansi::Actor->modules();
+ # OR
+
+ my %MODULES = $object->modules('filename.ext');
+
+ # OR
+
+ use Anansi::Actor;
+ my %MODULES = Anansi::Actor->modules('filename.ext');
 
 Builds and returns a HASH of all the modules and their paths that are available
-on the operating system.  Indirectly called via an extending module.
+on the operating system.  A temporary file will be used to improve speed if a
+FILENAME is supplied.  This file will need to be deleted to update the module
+HASH.
 
 =cut
 
 
 sub modules {
-    my ($self, %parameters) = @_;
+    my ($self, $filename) = @_;
+    my $filepath;
+    if(!defined($filename)) {
+    } elsif(ref($filename) !~ /^$/) {
+    } elsif($filename =~ /^[a-zA-Z_]+[a-zA-Z0-9_]*(\.[a-zA-Z0-9_]+)*$/) {
+        $filepath = File::Spec->catfile(File::Spec->splitdir(File::Spec->tmpdir()), $filename);
+        if(!defined($ACTOR->{MODULES})) {
+            if(open(FILE_HANDLE, '<'.$filepath)) {
+                flock(FILE_HANDLE, LOCK_EX);
+                my @contents = <FILE_HANDLE>;
+                my $content = join(',', @contents);
+                flock(FILE_HANDLE, LOCK_UN);
+                close(FILE_HANDLE);
+                %{$ACTOR->{MODULES}} = split(',', $content);
+            }
+        }
+    }
     if(!defined($ACTOR->{MODULES})) {
         $ACTOR->{MODULES} = {};
         File::Find::find(
@@ -154,6 +182,20 @@ sub modules {
             },
             @INC
         );
+    }
+    if(defined($filepath)) {
+        if(open(FILE_HANDLE, '<'.$filepath)) {
+            close(FILE_HANDLE);
+        } else {
+            my $content = join(',', @{[%{$ACTOR->{MODULES}}]});
+            if(open(FILE_HANDLE, '+>'.$filepath)) {
+                FILE_HANDLE->autoflush(1);
+                flock(FILE_HANDLE, LOCK_EX);
+                print FILE_HANDLE $content;
+                flock(FILE_HANDLE, LOCK_UN);
+                close(FILE_HANDLE);
+            }
+        }
     }
     return %{$ACTOR->{MODULES}};
 }
