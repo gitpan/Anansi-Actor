@@ -21,7 +21,7 @@ namespace and blessing of an object of said namespace as required.
 =cut
 
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use base qw(Anansi::Singleton);
 
@@ -32,19 +32,6 @@ use FileHandle;
 
 
 my $ACTOR = Anansi::Actor->SUPER::new();
-
-
-=head1 CONSTANTS
-
-=cut
-
-
-=head2 ACTOR_VARIABLE
-
-N/A
-
-=cut
-
 
 use constant {
     ACTOR_VARIABLE => 'example',
@@ -57,6 +44,10 @@ use constant {
 
 
 =head2 implicate
+
+ use constant {
+     ACTOR_VARIABLE => 'some value',
+ };
 
  sub implicate {
      my ($self, $caller, $parameter) = @_;
@@ -115,29 +106,36 @@ sub import {
  use Anansi::Actor;
  my %MODULES = Anansi::Actor->modules();
 
- # OR
-
- my %MODULES = $object->modules('filename.ext');
-
- # OR
-
- use Anansi::Actor;
- my %MODULES = Anansi::Actor->modules('filename.ext');
-
 Builds and returns a HASH of all the modules and their paths that are available
-on the operating system.  A temporary file will be used to improve speed if a
-FILENAME is supplied.  This file will need to be deleted to update the module
-HASH.
+on the operating system.  A temporary file "Anansi-Actor.#" will be created if
+at all possible to improve the speed of this subroutine by storing the module
+HASH.  The temporary file will automatically be updated when this subroutine is
+run once a full day has passed.  Deleting the temporary will also cause an
+update to occur.
 
 =cut
 
 
 sub modules {
-    my ($self, $filename) = @_;
+    my ($self) = @_;
+    my $filename;
+    if(opendir(DIRECTORY, File::Spec->tmpdir())) {
+        my @files = reverse(sort(grep(/^Anansi-Actor\.\d+$/, readdir(DIRECTORY))));
+        closedir(DIRECTORY);
+        if(0 < scalar(@files)) {
+            my $timestamp = (split(/\./, $files[0]))[1];
+            if(86400 + $timestamp < time()) {
+                unlink(@files);
+                $filename = 'Anansi-Actor.'.time();
+            } else {
+                $filename = $files[0];
+            }
+        } else {
+            $filename = 'Anansi-Actor.'.time();
+        }
+    }
     my $filepath;
-    if(!defined($filename)) {
-    } elsif(ref($filename) !~ /^$/) {
-    } elsif($filename =~ /^[a-zA-Z_]+[a-zA-Z0-9_]*(\.[a-zA-Z0-9_]+)*$/) {
+    if(defined($filename)) {
         $filepath = File::Spec->catfile(File::Spec->splitdir(File::Spec->tmpdir()), $filename);
         if(!defined($ACTOR->{MODULES})) {
             if(open(FILE_HANDLE, '<'.$filepath)) {
@@ -173,8 +171,8 @@ sub modules {
                     }
                     close(FILE);
                     return if(!defined($package));
-                    return if(defined(%{$ACTOR->{MODULES}}->{$package}));
-                    %{$ACTOR->{MODULES}}->{$package} = $path;
+                    return if(defined(${$ACTOR->{MODULES}}{$package}));
+                    ${$ACTOR->{MODULES}}{$package} = $path;
                 },
                 follow => 1,
                 follow_skip => 2,

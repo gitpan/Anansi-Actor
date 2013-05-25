@@ -12,4 +12,8 @@ Revision history for Perl extension Anansi::Actor.
 0.05  Wed May 15 17:04:13 2013
 	- modified "modules" to use a temporary file.
 	- modified the POD for "modules".
+0.06  Mon May 20 10:54:56 2013
+	- modified the POD.
+	- corrected HASH reference deprecations.
+	- modified "modules" to use a timestamped file.
 
