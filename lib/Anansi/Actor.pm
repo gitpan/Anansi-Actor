@@ -8,20 +8,32 @@ Anansi::Actor - A dynamic usage module definition
 =head1 SYNOPSIS
 
  use Anansi::Actor;
-
  my $object = Anansi::Actor->new(
-  PACKAGE => 'Anansi::Example',
+     PACKAGE => 'Anansi::Example',
  );
+ $object->someSubroutine() if(defined($object));
+
+ use Anansi::Actor;
+ use Data::Dumper qw(Dumper);
+ my %modules = Anansi::Actor->modules();
+ if(defined($modules{DBI})) {
+     Anansi::Actor->new(
+         PACKAGE => 'DBI',
+     );
+     print Data::Dumper::Dumper(DBI->available_drivers());
+ }
 
 =head1 DESCRIPTION
 
 This is a dynamic usage module definition that manages the loading of a required
-namespace and blessing of an object of said namespace as required.
+namespace and blessing of an object of the namespace as required.  See
+I<Anansi::Singleton> for inherited methods.  Makes uses of I<base>, I<Fcntl>
+I<File::Find>, I<File::Spec::Functions> and I<FileHandle>.
 
 =cut
 
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use base qw(Anansi::Singleton);
 
@@ -60,7 +72,28 @@ use constant {
      return if($@);
  }
 
-Performs module instance object variable imports.
+=head3 PARAMETERS
+
+=over 4
+
+=item self
+
+(I<BLESSED HASH>, I<REQUIRED>)
+An object of this namespace.
+
+=item caller
+
+(I<ARRAY>, I<REQUIRED>)
+An ARRAY containing the I<package>, I<file name> and I<line number> of the caller.
+
+=item parameter
+
+(I<STRING>, I<REQUIRED>)
+A STRING containing the name to import.
+
+=back
+
+Performs one module instance name import.  Called for each name to import.
 
 =cut
 
@@ -81,7 +114,23 @@ sub implicate {
 
  use Anansi::Actor qw(ACTOR_VARIABLE);
 
-Performs all required module imports.  Indirectly called via an extending
+=head3 PARAMETERS
+
+=over 4
+
+=item self
+
+(I<BLESSED HASH>, I<REQUIRED>)
+An object of this namespace.
+
+=item parameters
+
+(I<ARRAY>, I<OPTIONAL>)
+An ARRAY containing all of the names to import.
+
+=back
+
+Performs all required module name imports.  Indirectly called via an extending
 module.
 
 =cut
@@ -101,10 +150,19 @@ sub import {
 
  my %MODULES = $object->modules();
 
- # OR
-
  use Anansi::Actor;
  my %MODULES = Anansi::Actor->modules();
+
+=head3 PARAMETERS
+
+=over 4
+
+=item self
+
+(I<BLESSED HASH>, I<REQUIRED>)
+An object of this namespace.
+
+=back
 
 Builds and returns a HASH of all the modules and their paths that are available
 on the operating system.  A temporary file "Anansi-Actor.#" will be created if
@@ -202,8 +260,59 @@ sub modules {
 =head2 new
 
  my $object = Anansi::Actor->new(
-  PACKAGE => 'Anansi::Example',
+     PACKAGE => 'Anansi::Example',
  );
+
+=head3 PARAMETERS
+
+=over 4
+
+=item class
+
+(I<REQUIRED>)
+
+(I<BLESSED HASH>)
+An object of this namespace.
+
+(I<STRING>)
+A STRING of the namespace.
+
+=item parameters
+
+(I<HASH>)
+Named parameters.
+
+=over 4
+
+=item BLESS
+
+(I<STRING>, I<OPTIONAL>)
+The name of the subroutine within the namespace that creates a blessed object of
+the namespace.
+
+=item IMPORT
+
+(I<ARRAY>, I<OPTIONAL>)
+An ARRAY of the names to import from the loading module.
+
+=item PACKAGE
+
+(I<STRING>, I<REQUIRED>)
+The namespace of the module to load.
+
+=item PARAMETERS
+
+(I<OPTIONAL>)
+
+(I<ARRAY>)
+An ARRAY of the parameters to pass to the blessing subroutine.
+
+(I<HASH>)
+A HASH of the parameters to pass to the blessing subroutine.
+
+=back
+
+=back
 
 Instantiates an object instance of a dynamically loaded module.
 
