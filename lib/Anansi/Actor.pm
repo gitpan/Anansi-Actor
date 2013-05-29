@@ -33,7 +33,7 @@ L<File::Find>, L<File::Spec::Functions> and L<FileHandle>.
 =cut
 
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 use base qw(Anansi::Singleton);
 
@@ -74,21 +74,15 @@ use constant {
 
 =over 4
 
-=item self
-
-( I<Blessed Hash>, I<Required> )
+=item self I<(Blessed Hash, Required)>
 
 An object of this namespace.
 
-=item caller
-
-( I<Array>, I<Required> )
+=item caller I<(Array, Required)>
 
 An array containing the I<package>, I<file name> and I<line number> of the caller.
 
-=item parameter
-
-( I<String>, I<Required> )
+=item parameter I<(String, Required)>
 
 A string containing the name to import.
 
@@ -118,15 +112,11 @@ sub implicate {
 
 =over 4
 
-=item self
-
-( I<Blessed Hash>, I<Required> )
+=item self I<(Blessed Hash, Required)>
 
 An object of this namespace.
 
-=item parameters
-
-( I<Array>, I<Optional> )
+=item parameters I<(Array, Optional)>
 
 An array containing all of the names to import.
 
@@ -157,9 +147,7 @@ sub import {
 
 =over 4
 
-=item self
-
-( I<Blessed Hash>, I<Required> )
+=item self I<(Blessed Hash, Required)>
 
 An object of this namespace.
 
@@ -266,56 +254,32 @@ sub modules {
 
 =over 4
 
-=item class
+=item class I<(Blessed Hash B<or> String, Required)>
 
-( I<Required> )
+Either an object or a string of this namespace.
 
-( I<Blessed Hash> )
-
-An object of this namespace.
-
-( I<String> )
-
-A string of the namespace.
-
-=item parameters
-
-( I<Hash> )
+=item parameters I<(Hash)>
 
 Named parameters.
 
 =over 4
 
-=item BLESS
-
-( I<String>, I<Optional> )
+=item BLESS I<(String, Optional)>
 
 The name of the subroutine within the namespace that creates a blessed object of
 the namespace.
 
-=item IMPORT
-
-( I<Array>, I<Optional> )
+=item IMPORT I<(Array, Optional)>
 
 An array of the names to import from the loading module.
 
-=item PACKAGE
-
-( I<String>, I<Required> )
+=item PACKAGE I<(String, Required)>
 
 The namespace of the module to load.
 
-=item PARAMETERS
+=item PARAMETERS I<(Array B<or> Hash, Optional)>
 
-( I<Optional> )
-
-( I<Array> )
-
-An array of the parameters to pass to the blessing subroutine.
-
-( I<Hash> )
-
-A hash of the parameters to pass to the blessing subroutine.
+Either An array or a hash of the parameters to pass to the blessing subroutine.
 
 =back
 
@@ -373,9 +337,16 @@ sub new {
 }
 
 
+=head1 NOTES
+
+This module is designed to make it simple, easy and quite fast to code your
+design in perl.  If for any reason you feel that it doesn't achieve these goals
+then please let me know.  I am here to help.  All constructive criticisms are
+also welcomed.
+
 =head1 AUTHOR
 
-Kevin Treleaven <kevin AT treleaven DOT net>
+Kevin Treleaven <kevin I<AT> treleaven I<DOT> net>
 
 =cut
 
