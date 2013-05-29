@@ -20,3 +20,5 @@ Revision history for Perl extension Anansi::Actor.
 	- modified the POD to reflect more concise examples and include method parameter.
 0.08  Tue May 28 19:48:52 2013
 	- modified the POD.
+0.09  Tue May 28 22:09:50 2013
+	- modified the POD.

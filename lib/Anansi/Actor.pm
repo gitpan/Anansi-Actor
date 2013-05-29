@@ -33,7 +33,7 @@ L<File::Find>, L<File::Spec::Functions> and L<FileHandle>.
 =cut
 
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use base qw(Anansi::Singleton);
 
@@ -71,8 +71,6 @@ use constant {
      }
      return if($@);
  }
-
-=head3 PARAMETERS
 
 =over 4
 
@@ -118,8 +116,6 @@ sub implicate {
 
  use Anansi::Actor qw(ACTOR_VARIABLE);
 
-=head3 PARAMETERS
-
 =over 4
 
 =item self
@@ -158,8 +154,6 @@ sub import {
 
  use Anansi::Actor;
  my %MODULES = Anansi::Actor->modules();
-
-=head3 PARAMETERS
 
 =over 4
 
@@ -269,8 +263,6 @@ sub modules {
  my $object = Anansi::Actor->new(
      PACKAGE => 'Anansi::Example',
  );
-
-=head3 PARAMETERS
 
 =over 4
 
