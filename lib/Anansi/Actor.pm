@@ -27,13 +27,13 @@ Anansi::Actor - A dynamic usage module definition
 
 This is a dynamic usage module definition that manages the loading of a required
 namespace and blessing of an object of the namespace as required.  See
-I<Anansi::Singleton> for inherited methods.  Makes uses of I<base>, I<Fcntl>
-I<File::Find>, I<File::Spec::Functions> and I<FileHandle>.
+L<Anansi::Singleton> for inherited methods.  Makes use of L<base>, L<Fcntl>
+L<File::Find>, L<File::Spec::Functions> and L<FileHandle>.
 
 =cut
 
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 use base qw(Anansi::Singleton);
 
@@ -78,22 +78,26 @@ use constant {
 
 =item self
 
-(I<BLESSED HASH>, I<REQUIRED>)
+( I<Blessed Hash>, I<Required> )
+
 An object of this namespace.
 
 =item caller
 
-(I<ARRAY>, I<REQUIRED>)
-An ARRAY containing the I<package>, I<file name> and I<line number> of the caller.
+( I<Array>, I<Required> )
+
+An array containing the I<package>, I<file name> and I<line number> of the caller.
 
 =item parameter
 
-(I<STRING>, I<REQUIRED>)
-A STRING containing the name to import.
+( I<String>, I<Required> )
+
+A string containing the name to import.
 
 =back
 
 Performs one module instance name import.  Called for each name to import.
+Intended to be replaced by an extending module.  Indirectly called.
 
 =cut
 
@@ -120,13 +124,15 @@ sub implicate {
 
 =item self
 
-(I<BLESSED HASH>, I<REQUIRED>)
+( I<Blessed Hash>, I<Required> )
+
 An object of this namespace.
 
 =item parameters
 
-(I<ARRAY>, I<OPTIONAL>)
-An ARRAY containing all of the names to import.
+( I<Array>, I<Optional> )
+
+An array containing all of the names to import.
 
 =back
 
@@ -159,7 +165,8 @@ sub import {
 
 =item self
 
-(I<BLESSED HASH>, I<REQUIRED>)
+( I<Blessed Hash>, I<Required> )
+
 An object of this namespace.
 
 =back
@@ -269,46 +276,54 @@ sub modules {
 
 =item class
 
-(I<REQUIRED>)
+( I<Required> )
 
-(I<BLESSED HASH>)
+( I<Blessed Hash> )
+
 An object of this namespace.
 
-(I<STRING>)
-A STRING of the namespace.
+( I<String> )
+
+A string of the namespace.
 
 =item parameters
 
-(I<HASH>)
+( I<Hash> )
+
 Named parameters.
 
 =over 4
 
 =item BLESS
 
-(I<STRING>, I<OPTIONAL>)
+( I<String>, I<Optional> )
+
 The name of the subroutine within the namespace that creates a blessed object of
 the namespace.
 
 =item IMPORT
 
-(I<ARRAY>, I<OPTIONAL>)
-An ARRAY of the names to import from the loading module.
+( I<Array>, I<Optional> )
+
+An array of the names to import from the loading module.
 
 =item PACKAGE
 
-(I<STRING>, I<REQUIRED>)
+( I<String>, I<Required> )
+
 The namespace of the module to load.
 
 =item PARAMETERS
 
-(I<OPTIONAL>)
+( I<Optional> )
 
-(I<ARRAY>)
-An ARRAY of the parameters to pass to the blessing subroutine.
+( I<Array> )
 
-(I<HASH>)
-A HASH of the parameters to pass to the blessing subroutine.
+An array of the parameters to pass to the blessing subroutine.
+
+( I<Hash> )
+
+A hash of the parameters to pass to the blessing subroutine.
 
 =back
 
