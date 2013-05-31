@@ -1,4 +1,4 @@
-Anansi-Actor version 0.10
+Anansi-Actor version 0.11
 =========================
 
 The README is used to introduce the module and provide instructions on
@@ -25,7 +25,10 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
+  Anansi::Class
+  Anansi::ObjectManager
   Anansi::Singleton
+  base
   Fcntl
   File::Find
   File::Spec::Functions
