@@ -23,6 +23,17 @@ Anansi::Actor - A dynamic usage module definition
         print Data::Dumper::Dumper(DBI->available_drivers());
     }
 
+    use Anansi::Actor;
+    use Data::Dumper qw(Dumper);
+    if(1 == Anansi::Actor->modules(
+        PACKAGE => 'DBI',
+    )) {
+        Anansi::Actor->new(
+            PACKAGE => 'DBI',
+        );
+        print Data::Dumper::Dumper(DBI->available_drivers());
+    }
+
 =head1 DESCRIPTION
 
 This is a dynamic usage module definition that manages the loading of a required
@@ -33,7 +44,7 @@ and L<FileHandle>.
 =cut
 
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 use base qw(Anansi::Singleton);
 
@@ -131,7 +142,28 @@ Declared in L<Anansi::Class>.
     my %MODULES = $object->modules();
 
     use Anansi::Actor;
-    my %MODULES = Anansi::Actor->modules();
+    my %MODULES = Anansi::Actor->modules(
+        INTERVAL => 3600,
+    );
+
+    if(1 == $object->modules(
+        PACKAGE => [
+            'Some::Module::Namespace',
+            'Another::Module::Namespace',
+            'Yet::Another::Module::Namespace'
+        ],
+    )) {
+        print 'The modules have been found.'."\n";
+    }
+
+    use Anansi::Actor;
+    my $MODULE = 'Some::Module::Namespace';
+    if(0 == Anansi::Actor->modules(
+        PACKAGE => $MODULE,
+        INTERVAL => 43200,
+    )) {
+        print 'The "'.$MODULE.'" module has not been found.'."\n";
+    }
 
 =over 4
 
@@ -139,54 +171,115 @@ Declared in L<Anansi::Class>.
 
 An object of this namespace.
 
+=item parameters I<(Hash)>
+
+Named parameters.
+
+=over 4
+
+=item INTERVAL I<(String, Optional)>
+
+Specifies a refresh interval in seconds.  Defaults to 86400 seconds (1 day).
+
+=item PACKAGE I<(Array B<or> String, Optional)>
+
+An ARRAY of module namespaces or a module namespace to find on the operating
+system.
+
 =back
 
-Builds and returns a HASH of all the modules and their paths that are available
-on the operating system.  A temporary file "Anansi-Actor.#" will be created if
-at all possible to improve the speed of this subroutine by storing the module
-HASH.  The temporary file will automatically be updated when this subroutine is
-run once a full day has passed.  Deleting the temporary will also cause an
-update to occur.
+=back
+
+Builds a HASH of all the modules and their paths that are available on the
+operating system and either returns the module HASH or a B<1> I<(one)> on
+success and a B<0> I<(zero)> on failure when determining the existence of the
+modules that are specified in the I<PACKAGE> parameter.  A temporary file
+"Anansi-Actor.#" will be created if at all possible to improve the speed of this
+subroutine by storing the module HASH.  The temporary file will automatically
+be updated when this subroutine is subsequently run when the number of seconds
+specified in the I<INTERVAL> parameter or a full day has passed.  Deleting the
+temporary file will also cause an update to occur.
 
 =cut
 
 
 sub modules {
-    my ($self) = @_;
+    my ($self, %parameters) = @_;
+    if(defined($parameters{PACKAGE})) {
+        $parameters{PACKAGE} = [($parameters{PACKAGE})] if(ref($parameters{PACKAGE}) =~ /^$/);
+        return 0 if(ref($parameters{PACKAGE}) !~ /^ARRAY$/i);
+        return 0 if(0 == scalar(@{$parameters{PACKAGE}}));
+        foreach my $package (@{$parameters{PACKAGE}}) {
+            return 0 if(ref($package) !~ /^$/);
+            return 0 if($package !~ /^[a-zA-Z]+[a-zA-Z0-9_]*(::[a-zA-Z]+[a-zA-Z0-9_]*)*$/);
+        }
+    }
+    $ACTOR->{INTERVAL} = 86400 if(!defined($ACTOR->{INTERVAL}));
+    if(!defined($parameters{INTERVAL})) {
+    } elsif(ref($parameters{INTERVAL}) !~ /^$/) {
+    } elsif($parameters{INTERVAL} !~ /^\s*[\-+]?\d+\s*$/) {
+    } elsif(0 + $parameters{INTERVAL} <= 0) {
+    } else {
+        $ACTOR->{INTERVAL} = 0 + $parameters{INTERVAL};
+    }
+    my $TIMESTAMP = time();
     my $filename;
+    my $refresh = 0;
+    my $update = 0;
     if(opendir(DIRECTORY, File::Spec->tmpdir())) {
         my @files = reverse(sort(grep(/^Anansi-Actor\.\d+$/, readdir(DIRECTORY))));
         closedir(DIRECTORY);
+        $filename = 'Anansi-Actor.'.$TIMESTAMP;
         if(0 < scalar(@files)) {
             my $timestamp = (split(/\./, $files[0]))[1];
-            if(86400 + $timestamp < time()) {
-                foreach my $file (@files) {
-                    $file = File::Spec->catfile(File::Spec->splitdir(File::Spec->tmpdir()), $file);
-                    unlink($file);
+            if(!defined($ACTOR->{TIMESTAMP})) {
+                if(0 + $TIMESTAMP < 0 + $timestamp + $ACTOR->{INTERVAL}) {
+                    $filename = shift(@files);
+                    $ACTOR->{TIMESTAMP} = 0 + $timestamp;
+                    $refresh = 1;
+                } else {
+                    $ACTOR->{TIMESTAMP} = 0 + $TIMESTAMP;
+                    $update = 1;
                 }
-                $filename = 'Anansi-Actor.'.time();
+            } elsif(0 + $TIMESTAMP < 0 + $ACTOR->{TIMESTAMP} + $ACTOR->{INTERVAL}) {
+                if(0 + $ACTOR->{TIMESTAMP} <= 0 + $timestamp) {
+                    $filename = shift(@files);
+                    $ACTOR->{TIMESTAMP} = 0 + $timestamp;
+                    $refresh = 1;
+                } else {
+                    $filename = 'Anansi-Actor.'.$ACTOR->{TIMESTAMP};
+                }
             } else {
-                $filename = $files[0];
+                $ACTOR->{TIMESTAMP} = 0 + $TIMESTAMP;
+                $update = 1;
             }
-        } else {
-            $filename = 'Anansi-Actor.'.time();
+            foreach my $file (@files) {
+                $file = File::Spec->catfile(File::Spec->splitdir(File::Spec->tmpdir()), $file);
+                unlink($file);
+            }
         }
-    }
-    my $filepath;
-    if(defined($filename)) {
-        $filepath = File::Spec->catfile(File::Spec->splitdir(File::Spec->tmpdir()), $filename);
-        if(!defined($ACTOR->{MODULES})) {
-            if(open(FILE_HANDLE, '<'.$filepath)) {
+        $filename = File::Spec->catfile(File::Spec->splitdir(File::Spec->tmpdir()), $filename);
+        $refresh = 1 if(!defined($ACTOR->{MODULES}));
+        if($refresh) {
+            if(open(FILE_HANDLE, '<'.$filename)) {
                 flock(FILE_HANDLE, LOCK_EX);
                 my @contents = <FILE_HANDLE>;
                 my $content = join(',', @contents);
                 flock(FILE_HANDLE, LOCK_UN);
                 close(FILE_HANDLE);
                 %{$ACTOR->{MODULES}} = split(',', $content);
+            } else {
+                $update = 1;
             }
         }
+    } elsif(!defined($ACTOR->{TIMESTAMP})) {
+        $ACTOR->{TIMESTAMP} = $TIMESTAMP;
+        $update = 1;
+    } elsif(0 + $ACTOR->{TIMESTAMP} + $ACTOR->{INTERVAL} < 0 + $TIMESTAMP) {
+        $ACTOR->{TIMESTAMP} = $TIMESTAMP;
+        $update = 1;
     }
-    if(!defined($ACTOR->{MODULES})) {
+    if($update) {
         $ACTOR->{MODULES} = {};
         File::Find::find(
             {
@@ -219,12 +312,12 @@ sub modules {
             @INC
         );
     }
-    if(defined($filepath)) {
-        if(open(FILE_HANDLE, '<'.$filepath)) {
+    if(defined($filename)) {
+        if(open(FILE_HANDLE, '<'.$filename)) {
             close(FILE_HANDLE);
         } else {
             my $content = join(',', @{[%{$ACTOR->{MODULES}}]});
-            if(open(FILE_HANDLE, '+>'.$filepath)) {
+            if(open(FILE_HANDLE, '+>'.$filename)) {
                 FILE_HANDLE->autoflush(1);
                 flock(FILE_HANDLE, LOCK_EX);
                 print FILE_HANDLE $content;
@@ -232,6 +325,12 @@ sub modules {
                 close(FILE_HANDLE);
             }
         }
+    }
+    if(defined($parameters{PACKAGE})) {
+        foreach my $package (@{$parameters{PACKAGE}}) {
+            return 0 if(!defined(${$ACTOR->{MODULES}}{$package}));
+        }
+        return 1;
     }
     return %{$ACTOR->{MODULES}};
 }
