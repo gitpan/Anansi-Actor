@@ -32,3 +32,5 @@ Revision history for Perl extension Anansi::Actor.
 	- modified "modules" to incorporate user defined timestamp intervals.
 	- modified "modules" to incorporate package existence verification.
 	- modified the POD.
+0.13  Fri Aug 02 13:17:32 2013
+	- modified the POD.
