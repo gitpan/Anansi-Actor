@@ -37,14 +37,13 @@ Anansi::Actor - A dynamic usage module definition
 =head1 DESCRIPTION
 
 This is a dynamic usage module definition that manages the loading of a required
-namespace and blessing of an object of the namespace as required.  Uses
-L<Anansi::Singleton>, L<base>, L<Fcntl> L<File::Find>, L<File::Spec::Functions>
-and L<FileHandle>.
+namespace and blessing of an object of the namespace as required.  Uses L<Fcntl>,
+L<File::Find>, L<File::Spec::Functions> and L<FileHandle>.
 
 =cut
 
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 use base qw(Anansi::Singleton);
 
@@ -57,194 +56,126 @@ use FileHandle;
 my $ACTOR = Anansi::Actor->SUPER::new();
 
 
-=head1 INHERITED METHODS
-
-=cut
-
-
-=head2 DESTROY
-
-Declared in L<Anansi::Singleton>.
-
-=cut
-
-
-=head2 finalise
-
-    my $OBJECT = __PACKAGE__->Anansi::Singleton::new();
-    $OBJECT->finalise();
-
-    $Anansi::Actor::ACTOR->finalise();
-
-Declared as a virtual method in L<Anansi::Class>.
-
-=cut
-
-
-=head2 fixate
-
-    my $OBJECT = __PACKAGE__->Anansi::Singleton::new();
-    $OBJECT->fixate();
-
-    $Anansi::Actor::ACTOR->fixate();
-
-Declared as a virtual method in L<Anansi::Singleton>.
-
-=cut
-
-
-=head2 implicate
-
-Declared as a virtual method in L<Anansi::Class>.
-
-=cut
-
-
-=head2 import
-
-Declared in L<Anansi::Class>.
-
-=cut
-
-
-=head2 initialise
-
-    my $OBJECT = __PACKAGE__->Anansi::Singleton::new();
-    $OBJECT->initialise();
-
-    $Anansi::Actor::ACTOR->initialise();
-
-Declared as a virtual method in L<Anansi::Class>.
-
-=cut
-
-
-=head2 new
-
-    my $object = Anansi::Actor->new(
-        PACKAGE => 'Anansi::Example',
-    );
-
-=over 4
-
-=item class I<(Blessed Hash B<or> String, Required)>
-
-Either an object or a string of this namespace.
-
-=item parameters I<(Hash)>
-
-Named parameters.
-
-=over 4
-
-=item BLESS I<(String, Optional)>
-
-The name of the subroutine within the namespace that creates a blessed object of
-the namespace.  Defaults to I<"new">.
-
-=item IMPORT I<(Array, Optional)>
-
-An array of the names to import from the loading module.
-
-=item PACKAGE I<(String, Required)>
-
-The namespace of the module to load.
-
-=item PARAMETERS I<(Array B<or> Hash, Optional)>
-
-Either An array or a hash of the parameters to pass to the blessing subroutine.
-
-=back
-
-=back
-
-Declared in L<Anansi::Singleton>.  Overridden by this module.  Instantiates an
-object instance of a dynamically loaded module.
-
-=cut
-
-
-sub new {
-    my ($class, %parameters) = @_;
-    return if(!defined($parameters{PACKAGE}));
-    return if(ref($parameters{PACKAGE}) !~ /^$/);
-    return if($parameters{PACKAGE} !~ /^[a-zA-Z]+[a-zA-Z0-9_]*(::[a-zA-Z]+[a-zA-Z0-9_]*)*$/);
-    if(!defined($parameters{BLESS})) {
-        $parameters{BLESS} = 'new';
-    } else {
-        return if(ref($parameters{BLESS}) !~ /^$/);
-        return if($parameters{BLESS} !~ /^[a-zA-Z]+[a-zA-Z0-9_]*$/);
-    }
-    if(defined($parameters{PARAMETERS})) {
-        $parameters{PARAMETERS} = [(%{$parameters{PARAMETERS}})] if(ref($parameters{PARAMETERS}) =~ /^HASH$/i);
-        return if(ref($parameters{PARAMETERS}) !~ /^ARRAY$/i);
-    }
-    if(defined($parameters{IMPORT})) {
-        return if(ref($parameters{IMPORT}) !~ /^ARRAY$/i);
-        foreach my $import (@{$parameters{IMPORT}}) {
-            return if(ref($import) !~ /^$/);
-            return if($import !~ /^[a-zA-Z_]+[a-zA-Z0-9_]*$/);
-        }
-    }
-    my $package = $parameters{PACKAGE};
-    my $bless = $parameters{BLESS};
-    my $self;
-    eval {
-        (my $file = $package) =~ s/::/\//g;
-        require $file.'.pm';
-        if(defined($parameters{IMPORT})) {
-            $package->import(@{$parameters{IMPORT}});
-        } else {
-            $package->import();
-        }
-        if(defined($parameters{PARAMETERS})) {
-            $self = $package->$bless(@{$parameters{PARAMETERS}});
-        } else {
-            $self = $package->$bless();
-        }
-        1;
-    } or do {
-        my $error = $@;
-        return ;
-    };
-    return $self;
-}
-
-
-=head2 old
-
-Declared in L<Anansi::Class>.
-
-=cut
-
-
-=head2 reinitialise
-
-    my $OBJECT = __PACKAGE__->Anansi::Singleton::new();
-    $OBJECT->reinitialise();
-
-    $Anansi::Actor::ACTOR->reinitialise();
-
-Declared as a virtual method in L<Anansi::Singleton>.
-
-=cut
-
-
-=head2 used
-
-Declared in L<Anansi::Class>.
-
-=cut
-
-
-=head2 uses
-
-Declared in L<Anansi::Class>.
-
-=cut
-
-
 =head1 METHODS
+
+=cut
+
+
+=head2 Anansi::Class
+
+See L<Anansi::Class|Anansi::Class> for details.  A parent module of L<Anansi::Singleton|Anansi::Singleton>.
+
+=cut
+
+
+=head3 DESTROY
+
+See L<Anansi::Class::DESTROY|Anansi::Class/"DESTROY"> for details.  Overridden by L<Anansi::Singleton::DESTROY|Anansi::Singleton/"DESTROY">.
+
+=cut
+
+
+=head3 finalise
+
+See L<Anansi::Class::finalise|Anansi::Class/"finalise"> for details.  A virtual method.
+
+=cut
+
+
+=head3 implicate
+
+See L<Anansi::Class::implicate|Anansi::Class/"implicate"> for details.  A virtual method.
+
+=cut
+
+
+=head3 import
+
+See L<Anansi::Class::import|Anansi::Class/"import"> for details.
+
+=cut
+
+
+=head3 initialise
+
+See L<Anansi::Class::initialise|Anansi::Class/"initialise"> for details.  A virtual method.
+
+=cut
+
+
+=head3 new
+
+See L<Anansi::Class::new|Anansi::Class/"new"> for details.  Overridden by L<Anansi::Singleton::new|Anansi::Singleton/"new">.
+
+=cut
+
+
+=head3 old
+
+See L<Anansi::Class::old|Anansi::Class/"old"> for details.
+
+=cut
+
+
+=head3 used
+
+See L<Anansi::Class::used|Anansi::Class/"used"> for details.
+
+=cut
+
+
+=head3 uses
+
+See L<Anansi::Class::uses|Anansi::Class/"uses"> for details.
+
+=cut
+
+
+=head3 using
+
+See L<Anansi::Class::using|Anansi::Class/"using"> for details.
+
+=cut
+
+
+=head2 Anansi::Singleton
+
+See L<Anansi::Singleton|Anansi::Singleton> for details.  A parent module of L<Anansi::Actor|Anansi::Actor>.
+
+=cut
+
+
+=head3 Anansi::Class
+
+See L<Anansi::Class|Anansi::Singleton> for Class.  A parent module of L<Anansi::Singleton|Anansi::Singleton>.
+
+=cut
+
+
+=head3 DESTROY
+
+See L<Anansi::Singleton::DESTROY|Anansi::Singleton/"DESTROY"> for details.  Overrides L<Anansi::Class::DESTROY|Anansi::Class/"DESTROY">.
+
+=cut
+
+
+=head3 fixate
+
+See L<Anansi::Singleton::fixate|Anansi::Singleton/"fixate"> for details.  A virtual method.
+
+=cut
+
+
+=head3 new
+
+See L<Anansi::Singleton::new|Anansi::Singleton/"new"> for details.  Overrides L<Anansi::Class::new|Anansi::Class/"new">.  Overridden by L<Anansi::Actor::new|Anansi::Actor/"new">.
+
+=cut
+
+
+=head3 reinitialise
+
+See L<Anansi::Singleton::reinitialise|Anansi::Singleton/"reinitialise"> for details.  A virtual method.
 
 =cut
 
@@ -445,6 +376,98 @@ sub modules {
         return 1;
     }
     return %{$ACTOR->{MODULES}};
+}
+
+
+=head2 new
+
+    my $object = Anansi::Actor->new(
+        PACKAGE => 'Anansi::Example',
+    );
+
+=over 4
+
+=item class I<(Blessed Hash B<or> String, Required)>
+
+Either an object or a string of this namespace.
+
+=item parameters I<(Hash)>
+
+Named parameters.
+
+=over 4
+
+=item BLESS I<(String, Optional)>
+
+The name of the subroutine within the namespace that creates a blessed object of
+the namespace.  Defaults to I<"new">.
+
+=item IMPORT I<(Array, Optional)>
+
+An array of the names to import from the loading module.
+
+=item PACKAGE I<(String, Required)>
+
+The namespace of the module to load.
+
+=item PARAMETERS I<(Array B<or> Hash, Optional)>
+
+Either An array or a hash of the parameters to pass to the blessing subroutine.
+
+=back
+
+=back
+
+Overrides I<(L<Anansi::Singleton::new|Anansi::Singleton/"new">)>.  Instantiates
+an object instance of a dynamically loaded module.
+
+=cut
+
+
+sub new {
+    my ($class, %parameters) = @_;
+    return if(!defined($parameters{PACKAGE}));
+    return if(ref($parameters{PACKAGE}) !~ /^$/);
+    return if($parameters{PACKAGE} !~ /^[a-zA-Z]+[a-zA-Z0-9_]*(::[a-zA-Z]+[a-zA-Z0-9_]*)*$/);
+    if(!defined($parameters{BLESS})) {
+        $parameters{BLESS} = 'new';
+    } else {
+        return if(ref($parameters{BLESS}) !~ /^$/);
+        return if($parameters{BLESS} !~ /^[a-zA-Z]+[a-zA-Z0-9_]*$/);
+    }
+    if(defined($parameters{PARAMETERS})) {
+        $parameters{PARAMETERS} = [(%{$parameters{PARAMETERS}})] if(ref($parameters{PARAMETERS}) =~ /^HASH$/i);
+        return if(ref($parameters{PARAMETERS}) !~ /^ARRAY$/i);
+    }
+    if(defined($parameters{IMPORT})) {
+        return if(ref($parameters{IMPORT}) !~ /^ARRAY$/i);
+        foreach my $import (@{$parameters{IMPORT}}) {
+            return if(ref($import) !~ /^$/);
+            return if($import !~ /^[a-zA-Z_]+[a-zA-Z0-9_]*$/);
+        }
+    }
+    my $package = $parameters{PACKAGE};
+    my $bless = $parameters{BLESS};
+    my $self;
+    eval {
+        (my $file = $package) =~ s/::/\//g;
+        require $file.'.pm';
+        if(defined($parameters{IMPORT})) {
+            $package->import(@{$parameters{IMPORT}});
+        } else {
+            $package->import();
+        }
+        if(defined($parameters{PARAMETERS})) {
+            $self = $package->$bless(@{$parameters{PARAMETERS}});
+        } else {
+            $self = $package->$bless();
+        }
+        1;
+    } or do {
+        my $error = $@;
+        return ;
+    };
+    return $self;
 }
 
 

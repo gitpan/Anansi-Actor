@@ -1,4 +1,4 @@
-Anansi-Actor version 0.13
+Anansi-Actor version 0.14
 =========================
 
 The README is used to introduce the module and provide instructions on
@@ -16,23 +16,22 @@ INSTALLATION
 
 To install this module type the following:
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+    perl Makefile.PL
+    make
+    make test
+    make install
 
 DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-  Anansi::Class
-  Anansi::ObjectManager
-  Anansi::Singleton
-  base
-  Fcntl
-  File::Find
-  File::Spec::Functions
-  FileHandle
+    Anansi::Class
+    Anansi::ObjectManager
+    Anansi::Singleton
+    Fcntl
+    File::Find
+    File::Spec::Functions
+    FileHandle
 
 COPYRIGHT AND LICENCE
 
@@ -43,5 +42,4 @@ Copyright (C) 2013 by Kevin Treleaven
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.9 or,
 at your option, any later version of Perl 5 you may have available.
-
 
